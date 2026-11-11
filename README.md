@@ -1,61 +1,217 @@
 # Linux Incident Triage Toolkit
 
-## Project Overview
-
-The Linux Incident Triage Toolkit is a Bash-based tool designed to monitor Linux server health, detect common system issues, investigate probable causes, and generate incident reports with supporting evidence.
+A Bash-based Linux server monitoring and incident triage toolkit that detects resource threshold breaches, tracks repeated incidents, collects diagnostic evidence, and generates incident reports.
 
 ## Problem Statement
 
-Linux servers can experience operational issues such as:
+Linux server issues such as high CPU usage, memory exhaustion, disk exhaustion, and failed services require timely investigation.
 
-- High CPU utilization
-- Memory exhaustion
-- Disk space exhaustion
-- Inode exhaustion
-- Failed system services
-- Application errors in system logs
+This toolkit automates basic health checks and collects useful diagnostic information to support incident investigation.
 
-Manually identifying and investigating these problems can take time.
+## Features
 
-This project aims to automate initial monitoring and incident investigation.
+- CPU utilization monitoring
+- Memory utilization monitoring
+- Disk and inode utilization monitoring
+- Top CPU-consuming process inspection
+- Configurable system service monitoring
+- Consecutive breach tracking
+- Alert generation after three consecutive breaches
+- Recovery state tracking
+- Automatic incident triage
+- Diagnostic evidence collection
+- Incident report generation
+- Process locking using flock
+- Cron-based scheduled monitoring
+- Centralized logging
 
-## Core Workflow
+## Architecture
 
-1. Monitor Linux server health.
-2. Detect abnormal conditions.
-3. Generate alerts.
-4. Run diagnostic checks.
-5. Identify probable causes using evidence.
-6. Generate incident reports.
+```text
+Linux Server
+    |
+    v
+Monitoring Controller
+    |
+    +--> CPU Check
+    +--> Memory Check
+    +--> Disk and Inode Check
+    +--> Process Check
+    +--> Service Check
+    |
+    v
+Alert Manager
+    |
+    +--> Breach Tracking
+    +--> Recovery Tracking
+    |
+    v
+Incident Triage Engine
+    |
+    +--> Diagnostic Evidence
+    +--> System Information
+    +--> Process Information
+    +--> Recent System Errors
+    |
+    v
+Incident Report
+```
 
-## Planned Modules
+## Project Structure
 
-- CPU and memory monitoring
-- Disk and inode monitoring
-- Process monitoring
-- Service monitoring
-- Log monitoring
-- Alert state and cooldown
-- Incident triage engine
-- Incident evidence collection
-- Fault injection and testing
+```text
+linux-incident-triage/
+├── bin/
+│   └── monitor.sh
+├── checks/
+│   ├── cpu_check.sh
+│   ├── memory_check.sh
+│   ├── disk_check.sh
+│   ├── process_check.sh
+│   └── service_check.sh
+├── config/
+│   ├── services.conf
+│   └── thresholds.conf
+├── docs/
+│   └── architecture.md
+├── incidents/
+├── lib/
+│   ├── alert_manager.sh
+│   ├── logger.sh
+│   ├── report.sh
+│   └── triage.sh
+├── logs/
+├── state/
+└── tests/
+    └── test_alert_manager.sh
+```
 
 ## Technology Stack
 
-- Ubuntu Linux
-- Bash scripting
-- Linux command-line utilities
-- Cron
+- Bash Shell Scripting
+- Linux / Ubuntu
+- Linux system utilities
+- systemd
+- flock
+- cron
 - Git and GitHub
 
-## Project Scope
+## Configuration
 
-This is a single-server learning and demonstration project. It is not intended to replace enterprise monitoring platforms.
+Edit `config/thresholds.conf` to configure resource thresholds.
 
-## Development Status
+Default thresholds:
 
-Currently under development.
+| Resource | Threshold |
+|---|---:|
+| CPU | 80% |
+| Memory | 85% |
+| Disk | 90% |
+| Inodes | 90% |
+| Process CPU | 80% |
+
+Monitored services are configured in `config/services.conf`.
+
+## Installation
+
+```bash
+git clone https://github.com/yashverma-v/linux-incident-triage.git
+
+cd linux-incident-triage
+
+chmod +x bin/monitor.sh
+```
+
+Requirements:
+- Bash
+- Linux `/proc` filesystem
+- `flock`
+- `systemctl`
+- `cron`
+
+## Usage
+
+Run monitoring manually:
+
+```bash
+./bin/monitor.sh
+```
+
+Run alert manager tests:
+
+```bash
+bash tests/test_alert_manager.sh
+```
+
+View toolkit logs:
+
+```bash
+tail -f logs/toolkit.log
+```
+
+View generated incident reports:
+
+```bash
+ls -lh incidents/
+```
+
+## Automated Monitoring
+
+The toolkit can be scheduled through cron.
+
+Example: execute monitoring every five minutes.
+
+```cron
+*/5 * * * * /path/to/linux-incident-triage/bin/monitor.sh
+```
+
+Process locking prevents overlapping monitoring executions.
+
+## Incident Investigation
+
+When a monitored resource crosses its threshold for three consecutive checks, the alert manager triggers incident triage.
+
+The toolkit collects:
+- System uptime and load average
+- Memory utilization
+- Disk utilization
+- Top CPU-consuming processes
+- Failed system services
+- Recent system error messages
+
+Generated evidence and reports are stored in the `incidents/` directory.
+
+## Testing
+
+The alert manager has an automated test covering:
+- First breach
+- Second breach
+- Third consecutive breach
+- Automatic triage triggering
+- Recovery state clearing
+
+The toolkit has also been manually executed on an Ubuntu EC2 instance.
+
+## Limitations
+
+- Designed as a learning and demonstration project for a single Linux server.
+- Does not replace enterprise monitoring platforms.
+- Diagnostic evidence supports investigation but does not automatically establish root cause.
+- No automatic remediation is performed.
+- Additional failure, concurrency, and recovery scenarios require further testing.
+
+## Future Improvements
+
+- Alert cooldown and notification integrations
+- Expanded automated testing
+- Improved incident correlation
+- Additional diagnostic checks
+- Safe fault-injection testing
 
 ## Author
 
 Yash
+
+---
+
+Built to practice Linux administration, Bash scripting, monitoring, and incident investigation.
